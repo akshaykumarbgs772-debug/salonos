@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book an Appointment - SalonOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #F8F7FC 0%, #F3E8FF 100%);
+      min-height: 100vh;
+      color: #1F2937;
+    }
+    .header {
+      background: linear-gradient(135deg, #1E1B2E, #2D2843);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header .brand { display: flex; align-items: center; gap: 12px; }
+    .header .logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: white;
+    }
+    .header h1 { color: white; font-size: 20px; font-weight: 700; }
+    .header a { color: #C4B5FD; text-decoration: none; font-size: 14px; }
+    .header a:hover { color: white; }
+
+    .hero {
+      text-align: center; padding: 60px 20px 40px;
+      background: linear-gradient(135deg, #1E1B2E, #2D2843);
+      color: white;
+    }
+    .hero h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+    .hero p { color: #C4B5FD; font-size: 16px; margin-top: 8px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .hero .steps { display: flex; justify-content: center; gap: 40px; margin-top: 32px; }
+    .hero .step { text-align: center; }
+    .hero .step-num {
+      width: 40px; height: 40px; border-radius: 50%; border: 2px solid #8B5CF6;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px; font-weight: 700; font-size: 16px; color: #A78BFA;
+    }
+    .hero .step-label { font-size: 13px; color: #9CA3AF; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+    .step-section { display: none; }
+    .step-section.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+      background: white; border-radius: 16px; padding: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      border: 1px solid #E5E7EB;
+    }
+    .card h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .card .subtitle { color: #6B7280; font-size: 14px; margin-bottom: 24px; }
+
+    .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .service-card {
+      padding: 16px; border: 2px solid #E5E7EB; border-radius: 12px;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .service-card:hover { border-color: #C4B5FD; background: #FAF5FF; }
+    .service-card.selected { border-color: #8B5CF6; background: #F3E8FF; }
+    .service-card .name { font-weight: 600; font-size: 15px; }
+    .service-card .meta { display: flex; justify-content: space-between; margin-top: 8px; }
+    .service-card .duration { font-size: 13px; color: #6B7280; }
+    .service-card .price { font-size: 16px; font-weight: 700; color: #8B5CF6; }
+
+    .stylist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .stylist-card {
+      padding: 20px; border: 2px solid #E5E7EB; border-radius: 12px;
+      text-align: center; cursor: pointer; transition: all 0.2s ease;
+    }
+    .stylist-card:hover { border-color: #C4B5FD; }
+    .stylist-card.selected { border-color: #8B5CF6; background: #F3E8FF; }
+    .stylist-card .avatar {
+      width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: white;
+    }
+    .stylist-card .name { font-weight: 600; font-size: 14px; }
+    .stylist-card .bio { font-size: 12px; color: #6B7280; margin-top: 4px; }
+
+    .date-picker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
+    .date-btn {
+      padding: 12px 8px; border: 1px solid #E5E7EB; border-radius: 10px;
+      text-align: center; cursor: pointer; transition: all 0.2s; background: white;
+      font-family: inherit;
+    }
+    .date-btn:hover { border-color: #C4B5FD; }
+    .date-btn.selected { border-color: #8B5CF6; background: #F3E8FF; }
+    .date-btn .day-name { font-size: 11px; color: #6B7280; text-transform: uppercase; font-weight: 600; }
+    .date-btn .day-num { font-size: 18px; font-weight: 700; margin: 2px 0; }
+    .date-btn .day-month { font-size: 11px; color: #6B7280; }
+
+    .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .time-btn {
+      padding: 12px; border: 1px solid #E5E7EB; border-radius: 10px;
+      text-align: center; cursor: pointer; transition: all 0.2s; background: white;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+    }
+    .time-btn:hover { border-color: #8B5CF6; background: #FAF5FF; }
+    .time-btn.selected { border-color: #8B5CF6; background: #8B5CF6; color: white; }
+    .time-btn.unavailable { opacity: 0.3; cursor: not-allowed; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-control { width: 100%; padding: 12px 14px; border: 1px solid #E5E7EB; border-radius: 10px; font-size: 14px; font-family: inherit; transition: all 0.2s; }
+    .form-control:focus { outline: none; border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .btn-primary { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139,92,246,0.4); }
+    .btn-secondary { background: #F3F4F6; color: #374151; }
+    .btn-secondary:hover { background: #E5E7EB; }
+    .btn-block { width: 100%; justify-content: center; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .actions { display: flex; gap: 12px; margin-top: 24px; justify-content: space-between; }
+
+    .summary-box {
+      background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 12px;
+      padding: 20px; margin-bottom: 24px;
+    }
+    .summary-box .row { display: flex; justify-content: space-between; padding: 6px 0; }
+    .summary-box .row.label { font-size: 13px; color: #6B7280; }
+    .summary-box .row.value { font-weight: 600; }
+    .summary-box .total { border-top: 2px dashed #E9D5FF; margin-top: 8px; padding-top: 12px; font-size: 20px; font-weight: 800; color: #7C3AED; }
+
+    .success-screen { text-align: center; padding: 40px; }
+    .success-screen .check { font-size: 64px; margin-bottom: 16px; }
+    .success-screen h3 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .success-screen p { color: #6B7280; font-size: 15px; }
+
+    .progress-bar {
+      display: flex; justify-content: center; gap: 0; margin-bottom: 40px;
+      max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .progress-step { display: flex; align-items: center; }
+    .progress-dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; border: 2px solid #D1D5DB; color: #9CA3AF; background: white;
+      transition: all 0.3s;
+    }
+    .progress-step.active .progress-dot { border-color: #8B5CF6; background: #8B5CF6; color: white; }
+    .progress-step.completed .progress-dot { border-color: #10B981; background: #10B981; color: white; }
+    .progress-line {
+      width: 60px; height: 2px; background: #D1D5DB; margin: 0 4px;
+      transition: all 0.3s;
+    }
+    .progress-step.completed + .progress-step .progress-line,
+    .progress-step.completed .progress-line { background: #10B981; }
+
+    @media (max-width: 640px) {
+      .service-grid, .stylist-grid { grid-template-columns: 1fr; }
+      .time-grid { grid-template-columns: repeat(3, 1fr); }
+      .date-picker { grid-template-columns: repeat(4, 1fr); }
+      .hero h2 { font-size: 28px; }
+      .hero .steps { gap: 16px; flex-wrap: wrap; }
+      .container { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="logo">S</div>
+      <h1>SalonOS</h1>
+    </div>
+    <a href="/login">Staff Login →</a>
+  </div>
+
+  <div class="hero">
+    <h2>Book Your Appointment</h2>
+    <p>Choose your service, stylist, and preferred time — we'll take care of the rest.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-label">Choose Service</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-label">Pick Stylist</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-label">Select Time</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-label">Confirm</div></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <form id="bookingFlow" onsubmit="return false;">
+      <!-- Step 1: Service -->
+      <div class="step-section active" data-step="1">
+        <div class="card">
+          <h3>Choose a Service</h3>
+          <p class="subtitle">What would you like done today?</p>
+          <div class="service-grid" id="serviceGrid">
+            {% for s in services %}
+            <div class="service-card" data-id="{{ s.id }}" data-duration="{{ s.duration_min }}" data-price="{{ s.price }}" data-name="{{ s.name }}">
+              <div class="name">{{ s.name }}</div>
+              <div class="meta">
+                <span class="duration">⏱ {{ s.duration_min }} min</span>
+                <span class="price">₹{{ "%.0f"|format(s.price) }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="actions">
+            <span></span>
+            <button type="button" class="btn btn-primary" onclick="nextStep(1)" disabled id="step1Btn">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Stylist -->
+      <div class="step-section" data-step="2">
+        <div class="card">
+          <h3>Choose a Stylist</h3>
+          <p class="subtitle">Pick your preferred professional</p>
+          <div class="stylist-grid" id="stylistGrid">
+            {% for s in stylists %}
+            <div class="stylist-card" data-id="{{ s.id }}" data-name="{{ s.full_name }}">
+              <div class="avatar" style="background:{{ s.color or '#6366F1' }}">{{ s.first_name[0] }}{{ s.last_name[0] }}</div>
+              <div class="name">{{ s.full_name }}</div>
+              <div class="bio">{{ s.bio[:50] if s.bio else 'Professional stylist' }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep(2)" disabled id="step2Btn">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Date & Time -->
+      <div class="step-section" data-step="3">
+        <div class="card">
+          <h3>Pick a Date & Time</h3>
+          <p class="subtitle">Choose when to visit</p>
+
+          <label style="font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Select Date</label>
+          <div class="date-picker" id="datePicker"></div>
+
+          <label style="font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.5px;display:block;margin:16px 0 8px">Available Times</label>
+          <div class="time-grid" id="timeGrid">
+            <p style="grid-column:1/-1;color:#9CA3AF;text-align:center;padding:20px">Select a date to see available slots</p>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep(3)" disabled id="step3Btn">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Confirm -->
+      <div class="step-section" data-step="4">
+        <div class="card">
+          <h3>Almost Done!</h3>
+          <p class="subtitle">Confirm your details and we'll send you a reminder</p>
+
+          <div class="summary-box" id="summaryBox">
+            <div class="row label">Service</div>
+            <div class="row value" id="summaryService">-</div>
+            <div class="row label">Stylist</div>
+            <div class="row value" id="summaryStylist">-</div>
+            <div class="row label">Date & Time</div>
+            <div class="row value" id="summaryTime">-</div>
+            <div class="row label">Duration</div>
+            <div class="row value" id="summaryDuration">-</div>
+            <div class="row total" id="summaryPrice">₹0</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input class="form-control" id="clientName" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input class="form-control" id="clientPhone" placeholder="+91-XXXXXXXXXX" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email (for confirmation)</label>
+            <input class="form-control" id="clientEmail" type="email" placeholder="you@example.com">
+          </div>
+          <div class="form-group">
+            <label>Notes (optional)</label>
+            <textarea class="form-control" id="clientNotes" placeholder="Any special requests..." rows="2"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(4)">← Back</button>
+            <button type="button" class="btn btn-primary btn-block" onclick="confirmBooking()" id="confirmBtn">✅ Confirm Booking</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="step-section" data-step="5">
+        <div class="card">
+          <div class="success-screen">
+            <div class="check">✅</div>
+            <h3>Booking Confirmed!</h3>
+            <p>We've sent a confirmation to your phone. See you soon!</p>
+            <div class="summary-box" style="margin-top:20px;text-align:left" id="confirmationDetails"></div>
+            <button type="button" class="btn btn-primary" style="margin-top:20px" onclick="location.reload()">Book Another</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script id="apptData" type="application/json">{{ appointments|tojson }}</script>
+  <script>
+    const state = { service: null, stylist: null, date: null, time: null };
+    // Parse existing appointments for conflict checking
+    const existingAppts = (function() {
+      try {
+        return JSON.parse(document.getElementById('apptData').textContent || '[]');
+      } catch(e) { return []; }
+    })();
+
+    function nextStep(current) {
+      document.querySelector(`[data-step="${current}"]`).classList.remove('active');
+      document.querySelector(`[data-step="${current + 1}"]`).classList.add('active');
+      if (current + 1 === 4) fillSummary();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fillSummary() {
+      document.getElementById('summaryService').textContent = state.service.name + ' - ₹' + state.service.price.toFixed(0);
+      document.getElementById('summaryStylist').textContent = state.stylist.name;
+      const d = new Date(state.date);
+      const [h, m] = state.time.split(':').map(Number);
+      d.setHours(h, m);
+      document.getElementById('summaryTime').textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      document.getElementById('summaryDuration').textContent = state.service.duration + ' min';
+      document.getElementById('summaryPrice').textContent = '₹' + state.service.price.toFixed(0);
+    }
+
+    function prevStep(current) {
+      document.querySelector(`[data-step="${current}"]`).classList.remove('active');
+      document.querySelector(`[data-step="${current - 1}"]`).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Service selection
+    document.querySelectorAll('.service-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        state.service = {
+          id: this.dataset.id,
+          name: this.dataset.name,
+          duration: parseInt(this.dataset.duration),
+          price: parseFloat(this.dataset.price),
+        };
+        document.getElementById('step1Btn').disabled = false;
+      });
+    });
+
+    // Stylist selection
+    document.querySelectorAll('.stylist-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.stylist-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        state.stylist = {
+          id: this.dataset.id,
+          name: this.dataset.name,
+        };
+        document.getElementById('step2Btn').disabled = false;
+        generateDatePicker();
+      });
+    });
+
+    // Date picker
+    function generateDatePicker() {
+      const container = document.getElementById('datePicker');
+      container.innerHTML = '';
+      const today = new Date();
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'date-btn';
+        btn.innerHTML = `
+          <div class="day-name">${days[d.getDay()]}</div>
+          <div class="day-num">${d.getDate()}</div>
+          <div class="day-month">${months[d.getMonth()]}</div>
+        `;
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+          state.date = d;
+          generateTimeSlots(d);
+        });
+        container.appendChild(btn);
+      }
+    }
+
+    function isSlotBooked(date, time, stylistId, durationMin) {
+      const [h, m] = time.split(':').map(Number);
+      const slotStart = new Date(date);
+      slotStart.setHours(h, m, 0, 0);
+      const slotEnd = new Date(slotStart);
+      slotEnd.setMinutes(slotEnd.getMinutes() + durationMin);
+
+      for (const appt of existingAppts) {
+        const apptStart = new Date(appt.start_time);
+        const apptEnd = new Date(appt.end_time);
+        // Check same stylist and overlapping time
+        if (appt.stylist_id === stylistId && apptStart < slotEnd && apptEnd > slotStart) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function generateTimeSlots(date) {
+      const container = document.getElementById('timeGrid');
+      container.innerHTML = '';
+      const slots = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
+                     '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'];
+
+      const isToday = date.toDateString() === new Date().toDateString();
+      const now = new Date();
+      const stylistId = state.stylist?.id || '';
+      const duration = state.service?.duration || 60;
+
+      slots.forEach(time => {
+        const [h, m] = time.split(':').map(Number);
+        const slotDate = new Date(date);
+        slotDate.setHours(h, m, 0, 0);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+
+        const displayTime = new Date(2000, 0, 1, h, m);
+        const timeStr = displayTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+        const booked = stylistId && isSlotBooked(date, time, stylistId, duration);
+        const isPast = isToday && slotDate <= now;
+
+        if (booked || isPast) {
+          btn.className = 'time-btn unavailable';
+          btn.textContent = timeStr + (booked ? ' 🔒' : '');
+          btn.disabled = true;
+          if (booked) btn.title = 'Already booked';
+        } else {
+          btn.className = 'time-btn';
+          btn.textContent = timeStr;
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            state.time = time;
+            document.getElementById('step3Btn').disabled = false;
+          });
+        }
+        container.appendChild(btn);
+      });
+    }
+
+    function confirmBooking(e) {
+      if (e) e.preventDefault();
+      const name = document.getElementById('clientName').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      if (!name || !phone) { alert('Please fill in your name and phone number'); return; }
+      if (!state.service || !state.stylist || !state.date || !state.time) {
+        alert('Missing booking details. Please start over.'); return;
+      }
+
+      const btn = document.getElementById('confirmBtn');
+      btn.disabled = true; btn.textContent = '⏳ Booking...';
+
+      const [h, m] = state.time.split(':').map(Number);
+      const startTime = new Date(state.date);
+      startTime.setHours(h, m, 0, 0);
+      const email = document.getElementById('clientEmail').value.trim();
+      const notes = document.getElementById('clientNotes').value.trim();
+
+      fetch('/api/public/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: name,
+          client_phone: phone,
+          client_email: email || '',
+          stylist_id: state.stylist.id,
+          service_id: state.service.id,
+          start_time: startTime.toISOString(),
+          notes: notes || '',
+        }),
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          document.getElementById('confirmationDetails').innerHTML =
+            '<div class=\"row label\">Booking ID</div>' +
+            '<div class=\"row value\" style=\"font-family:monospace;font-size:13px\">#' + data.booking_id.slice(0, 8).toUpperCase() + '</div>' +
+            '<div class=\"row label\">Service</div>' +
+            '<div class=\"row value\">' + state.service.name + '</div>' +
+            '<div class=\"row label\">Stylist</div>' +
+            '<div class=\"row value\">' + state.stylist.name + '</div>' +
+            '<div class=\"row label\">Time</div>' +
+            '<div class=\"row value\">' + startTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '</div>' +
+            '<div class=\"row label\">Total</div>' +
+            '<div class=\"row total\">₹' + state.service.price.toFixed(0) + '</div>';
+          nextStep(4);
+        } else {
+          var msg = '';
+          if (typeof data.detail === 'string') {
+            msg = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            msg = data.detail.map(function(e) { return e.msg; }).join('; ');
+          } else {
+            msg = 'Booking failed. Please try again.';
+          }
+          alert(msg);
+          btn.disabled = false; btn.textContent = '✅ Confirm Booking';
+        }
+      })
+      .catch(function(err) {
+        alert('Could not reach server. Please check your connection.');
+        btn.disabled = false; btn.textContent = '✅ Confirm Booking';
+      });
+    }
+  </script>
+</body>
+</html>

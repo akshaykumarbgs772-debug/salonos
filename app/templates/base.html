@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalonOS – {% block title %}Dashboard{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>💇</text></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+  <link href="/static/css/style.css" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-icon">S</div>
+        <div>
+          <h1>SalonOS</h1>
+          <span>Salon Management</span>
+        </div>
+      </div>
+
+      {% if user %}
+      <div class="sidebar-user">
+        <div class="avatar" style="background: {{ user.color or '#6366F1' }}">
+          {{ user.first_name[0] }}{{ user.last_name[0] }}
+        </div>
+        <div class="user-info">
+          <div class="name">{{ user.full_name }}</div>
+          <div class="role">{{ user.role.value }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="/calendar" class="nav-item {% if request.url.path == '/calendar' %}active{% endif %}">
+          <span class="nav-icon">📅</span> Calendar
+        </a>
+        <a href="/appointments" class="nav-item {% if request.url.path == '/appointments' %}active{% endif %}">
+          <span class="nav-icon">📋</span> Appointments
+        </a>
+
+        <div class="nav-section" style="margin-top:8px">Business</div>
+        <a href="/payments" class="nav-item {% if request.url.path == '/payments' %}active{% endif %}">
+          <span class="nav-icon">💳</span> Payments & POS
+        </a>
+        <a href="/staff" class="nav-item {% if request.url.path == '/staff' %}active{% endif %}">
+          <span class="nav-icon">👥</span> Staff
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/logout" class="nav-item" style="color:rgba(255,255,255,0.4);font-size:13px">
+          <span class="nav-icon">🚪</span> Sign Out
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="top-bar">
+        <div class="page-title">
+          <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+          <p>{% block page_subtitle %}Overview of your salon{% endblock %}</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('sidebarToggle')?.click()" style="display:none" id="sidebarToggle">☰</button>
+          {% block top_actions %}{% endblock %}
+        </div>
+      </div>
+
+      <div class="page-content">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block page_subtitle %}Manage bookings and walk-ins{% endblock %}
+
+{% block top_actions %}
+<button class="btn btn-primary btn-sm" data-modal="bookingModal">+ New Booking</button>
+{% endblock %}
+
+{% block content %}
+<div id="appointments-page">
+  <div class="card">
+    <div class="card-body" style="padding:0">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Stylist</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for appt in appointments %}
+            <tr>
+              <td>{{ appt.start_time.strftime('%b %d, %I:%M %p') }}</td>
+              <td><strong>{{ appt.client.full_name if appt.client else 'Unknown' }}</strong></td>
+              <td>{{ appt.service.name if appt.service else '-' }}</td>
+              <td>{{ appt.stylist.full_name if appt.stylist else '-' }}</td>
+              <td>{{ appt.service.duration_min if appt.service else '-' }} min</td>
+              <td><span class="status-badge {{ appt.status.value }}">{{ appt.status.value|replace('_', ' ') }}</span></td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  {% if appt.status.value == 'confirmed' %}
+                  <button class="btn btn-success btn-sm appt-status-btn" data-appt-id="{{ appt.id }}" data-status="checked_in">Check In</button>
+                  <button class="btn btn-danger btn-sm appt-status-btn" data-appt-id="{{ appt.id }}" data-status="cancelled">Cancel</button>
+                  {% elif appt.status.value == 'checked_in' %}
+                  <button class="btn btn-primary btn-sm appt-status-btn" data-appt-id="{{ appt.id }}" data-status="in_progress">Start</button>
+                  {% elif appt.status.value == 'in_progress' %}
+                  <button class="btn btn-success btn-sm appt-status-btn" data-appt-id="{{ appt.id }}" data-status="completed">Complete</button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted" style="padding:60px">No appointments found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Book Appointment</h3>
+      <button class="modal-close">✕</button>
+    </div>
+    <form id="bookingForm">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Client</label>
+          <select class="form-control" name="client_id" required>
+            <option value="">Select client...</option>
+            {% for c in clients %}
+            <option value="{{ c.id }}">{{ c.full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label>Stylist</label>
+            <select class="form-control" name="stylist_id" required>
+              <option value="">Select stylist...</option>
+              {% for s in stylists %}
+              <option value="{{ s.id }}">{{ s.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Service</label>
+            <select class="form-control" name="service_id" required>
+              <option value="">Select service...</option>
+              {% for s in services %}
+              <option value="{{ s.id }}" data-duration="{{ s.duration_min }}" data-price="{{ s.price }}">{{ s.name }} ({{ s.duration_min }}min - ₹{{ "%.0f"|format(s.price) }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date & Time</label>
+          <input class="form-control" name="start_time" type="datetime-local" required>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea class="form-control" name="notes" placeholder="Special requests, reminders..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

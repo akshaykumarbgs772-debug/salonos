@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Your salon at a glance{% endblock %}
+
+{% block content %}
+<div id="dashboard-page">
+  <!-- Stats Row -->
+  <div class="grid grid-4">
+    <div class="stat-card">
+      <div class="stat-icon purple">💰</div>
+      <div class="stat-info">
+        <div class="label">Today's Revenue</div>
+        <div class="value">₹{{ "%.2f"|format(today_revenue) }}</div>
+        <div class="change up">↑ from yesterday</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon pink">📅</div>
+      <div class="stat-info">
+        <div class="label">Today's Appointments</div>
+        <div class="value">{{ today_appointments }}</div>
+        <div class="change">
+          {% if appointments_by_status.get('confirmed') %}
+          <span class="up">{{ appointments_by_status.get('confirmed', 0) }} confirmed</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green">👤</div>
+      <div class="stat-info">
+        <div class="label">Active Clients</div>
+        <div class="value">{{ active_clients }}</div>
+        <div class="change up">Last 90 days</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="grid grid-2" style="margin-top:24px">
+    <!-- Weekly Revenue Chart -->
+    <div class="card">
+      <div class="card-header">
+        <h3>📈 Weekly Revenue</h3>
+      </div>
+      <div class="card-body">
+        <div id="weeklyChart" style="height:220px;display:flex;align-items:flex-end;gap:8px;padding:20px 10px 30px;position:relative">
+          {% set weekly_data = weekly_revenue|map(attribute='revenue')|list %}
+          {% set max_val = weekly_data|max or 1 %}
+          <span id="weeklyData" style="display:none">{{ weekly_data|tojson }}</span>
+          {% for i in range(7) %}
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end">
+            <div class="chart-bar" style="width:100%;background:linear-gradient(180deg,#8B5CF6,#A78BFA);border-radius:4px 4px 0 0;height:0%;transition:height 0.6s cubic-bezier(0.4,0,0.2,1);min-height:4px"></div>
+            <div class="chart-label" style="font-size:11px;color:#9CA3AF;margin-top:8px;font-weight:500"></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="card">
+      <div class="card-header">
+        <h3>📋 Upcoming Appointments</h3>
+        <a href="/appointments" class="btn btn-secondary btn-sm">View All</a>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Stylist</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in upcoming %}
+              <tr>
+                <td>{{ appt.start_time.strftime('%I:%M %p') }}</td>
+                <td><strong>{{ appt.client.full_name if appt.client else 'N/A' }}</strong></td>
+                <td>{{ appt.service.name if appt.service else 'N/A' }}</td>
+                <td>{{ appt.stylist.full_name if appt.stylist else 'N/A' }}</td>
+                <td><span class="status-badge {{ appt.status.value }}">{{ appt.status.value }}</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="text-center text-muted" style="padding:40px">No upcoming appointments</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Summary -->
+  <div class="card" style="margin-top:24px">
+    <div class="card-header">
+      <h3>📊 Today's Appointment Status</h3>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        {% for status, count in appointments_by_status.items() %}
+        <div style="flex:1;min-width:120px;text-align:center;padding:16px;background:#FAFAFE;border-radius:10px">
+          <div style="font-size:28px;font-weight:800;color:#1F2937">{{ count }}</div>
+          <div style="font-size:12px;color:#6B7280;text-transform:capitalize;margin-top:4px">{{ status.replace('_', ' ') }}</div>
+        </div>
+        {% else %}
+        <div style="flex:1;text-align:center;padding:24px;color:#9CA3AF">No appointments today</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const dataEl = document.getElementById('weeklyData');
+    if (dataEl) {
+      try {
+        const values = JSON.parse(dataEl.textContent);
+        const maxVal = Math.max(...values, 1);
+        const bars = document.querySelectorAll('.chart-bar');
+        const labels = document.querySelectorAll('.chart-label');
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        bars.forEach((bar, i) => {
+          const h = (values[i] / maxVal) * 100;
+          setTimeout(() => { bar.style.height = Math.max(h, 4) + '%'; }, i * 80);
+          if (labels[i]) labels[i].textContent = days[i];
+        });
+      } catch(e) {}
+    }
+  });
+</script>
+{% endblock %}
