@@ -1,0 +1,100 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
+  "default_agent": "build",
+  "instructions": [
+    "../ECC/AGENTS.md",
+    "../ECC/.opencode/instructions/INSTRUCTIONS.md",
+    "../ECC/skills/tdd-workflow/SKILL.md",
+    "../ECC/skills/security-review/SKILL.md",
+    "../ECC/skills/coding-standards/SKILL.md",
+    "../ECC/skills/frontend-patterns/SKILL.md",
+    "../ECC/skills/backend-patterns/SKILL.md",
+    "../ECC/skills/api-design/SKILL.md",
+    "../ECC/skills/strategic-compact/SKILL.md"
+  ],
+  "skills": {
+    "paths": [
+      "../ECC/skills"
+    ]
+  },
+  "agent": {
+    "planner": {
+      "description": "Implementation planning specialist for complex features",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/planner.txt}",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false }
+    },
+    "code-reviewer": {
+      "description": "Code quality and maintainability review",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/code-reviewer.txt}",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false }
+    },
+    "security-reviewer": {
+      "description": "Security vulnerability detection",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/security-reviewer.txt}",
+      "tools": { "read": true, "bash": true, "write": true, "edit": true }
+    },
+    "tdd-guide": {
+      "description": "Test-Driven Development with 80%+ coverage",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/tdd-guide.txt}",
+      "tools": { "read": true, "write": true, "edit": true, "bash": true }
+    },
+    "python-reviewer": {
+      "description": "Python code review (PEP 8, type hints, security)",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/python-reviewer.txt}",
+      "tools": { "read": true, "bash": true, "write": false, "edit": false }
+    },
+    "database-reviewer": {
+      "description": "Database schema and query optimization",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "{file:.opencode/prompts/agents/database-reviewer.txt}",
+      "tools": { "read": true, "write": true, "edit": true, "bash": true }
+    }
+  },
+  "command": {
+    "plan": {
+      "description": "Create implementation plan for complex features",
+      "template": "{file:.opencode/commands/plan.md}\n\n$ARGUMENTS",
+      "agent": "planner",
+      "subtask": true
+    },
+    "tdd": {
+      "description": "TDD workflow with 80%+ coverage",
+      "template": "{file:.opencode/commands/tdd.md}\n\n$ARGUMENTS",
+      "agent": "tdd-guide",
+      "subtask": true
+    },
+    "code-review": {
+      "description": "Review code for quality and security",
+      "template": "{file:.opencode/commands/code-review.md}\n\n$ARGUMENTS",
+      "agent": "code-reviewer",
+      "subtask": true
+    },
+    "security": {
+      "description": "Run security review",
+      "template": "{file:.opencode/commands/security.md}\n\n$ARGUMENTS",
+      "agent": "security-reviewer",
+      "subtask": true
+    },
+    "verify": {
+      "description": "Run verification (lint + test + typecheck)",
+      "template": "{file:.opencode/commands/verify.md}\n\n$ARGUMENTS"
+    },
+    "learn": {
+      "description": "Extract patterns and learnings from session",
+      "template": "{file:.opencode/commands/learn.md}\n\n$ARGUMENTS"
+    }
+  }
+}
